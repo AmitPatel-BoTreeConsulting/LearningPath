@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150526085913) do
+ActiveRecord::Schema.define(version: 20150529072429) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -62,6 +62,8 @@ ActiveRecord::Schema.define(version: 20150526085913) do
     t.integer  "category_id"
     t.integer  "learning_status_id", default: 1
     t.integer  "link_type_id"
+    t.datetime "last_learned_at"
+    t.integer  "learn_times_count",  default: 0
   end
 
   create_table "pg_search_documents", force: true do |t|

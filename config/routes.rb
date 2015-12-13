@@ -1,11 +1,15 @@
 Rails.application.routes.draw do
 
   root 'links#index'
-  get 'links/favourites' => 'links#favourites', :as => :favourite_links
-  get 'links/import_form' => 'links#import_form', :as => :links_import_form
-  post 'links/search' => 'links#search', as: :links_search
+
   resources :links do
-    collection { post :import }
+    collection do
+      post :import
+      get :favourites
+      get :import_form
+      get :sort
+      get :search
+    end
   end
   resources :tag
   resources :favourites
@@ -18,7 +22,7 @@ Rails.application.routes.draw do
   # devise_scope :users do
   #   get '/users' => 'users#index'
   # end
-  post 'links/toggle' => 'favourites#toggle', :as => :toggle_favourite
+  post 'links/toggle' => 'favourites#toggle', as: :toggle_favourite
   devise_for :users, controllers: { sessions: 'users/sessions', registrations: 'users/registrations', passwords: 'users/passwords'}
 
   # You can have the root of your site routed with "root"

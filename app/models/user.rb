@@ -9,17 +9,21 @@ class User < ActiveRecord::Base
   attr_accessor :current_password
   has_many :favourites
   has_many :links
-  has_many :learn_time
+  has_many :learn_times
 
-  def self.get_all_link(user, date)
-    user.links.where("created_at >= ?", date).group('date(created_at)').count
+  def links_till( date)
+    links.where("created_at >= ?", date).group('date(created_at)').count
   end
 
   def favourite_links
     self.links.where(favourite: true)
   end
 
-  def current_user_links
-    self.links
+  def user_learned_links
+    learn_times.order(created_at: :desc).map { |learn_time| learn_time.link }.uniq
+  end
+
+  def user_learn_count_till(date)
+    learn_times.where("created_at >= ?", date).group('date(created_at)').count
   end
 end

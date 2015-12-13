@@ -43,7 +43,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
     @user = User.find(current_user.id)
     if @user.update(account_update_params)
       set_flash_message :notice, :updated
-      sign_in @user, :bypass => true
+      sign_in @user, bypass: true
       redirect_to after_update_path_for(@user)
     else
       render "edit"

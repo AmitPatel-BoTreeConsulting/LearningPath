@@ -4,17 +4,17 @@
   </div>
   <%= link_to 'Learning Path', root_path, class: 'logo' %>
   <div class="search_bar">
-    <%= form_tag links_search_path, remote: true, id: 'search' do %>
-        <%= text_field_tag 'search_string', nil, class: 'search_box' %>
-        <button class='fa fa-search search_button' style='width:40px;'>
-        </button>
+    <%= form_tag search_links_path, method: :get, remote: true, id: 'search' do %>
+      <%= text_field_tag 'search_string', nil, class: 'search_box' %>
+      <button class='fa fa-search search_button' style='width:40px;'>
+      </button>
     <% end %>
   </div>
 
   </div>
     <ul class="nav pull-right top-menu">
       <% if current_user %>
-        <li><%= link_to 'Profile', edit_user_registration_path(@current_user), class: 'logout' %></li>
+        <li><%= link_to 'Profile', edit_user_registration_path(current_user), class: 'logout' %></li>
         <li><%= link_to 'Logout', destroy_user_session_path, method: :delete, class: 'logout' %></li>
       <% end %>
     </ul>

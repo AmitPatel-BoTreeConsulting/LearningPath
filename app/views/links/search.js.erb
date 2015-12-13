@@ -1,3 +1,4 @@
-$('.links').html("<%= escape_javascript(render partial: 'links/links_list', locals: { links: @links = @search_list})%>");
+$('.links').append("<%= escape_javascript(render partial: 'links/links_list', locals: { links: @links = @search_list})%>");
+$('.search_field_val').val("<%= params[:search_string]%>");
 $('.pagination').replaceWith('<%= escape_javascript(will_paginate(@search_list) )%>');
 $('.flash_msg').remove();

@@ -3,8 +3,14 @@
     <% if @links.blank? %>
       <div class="no_links_msg">You do not have anything to display at this time. <%= link_to 'Start saving one now!', new_link_path%></div>
     <% else %>
-      <div class="col-lg-8 col-md-8 col-sm-8 links" id="links-list">
-        <%= render partial: 'links/links_list', locals: { links: @links}%>
+      <div class="col-lg-8 col-md-8 col-sm-8" id="links-list">
+        <%= form_tag sort_links_path, remote: true, method: :get,  id: 'sorting_form' do %>
+          <%= hidden_field_tag :search_string, '', class: 'search_field_val' %>
+          <%= select_tag :sort_by, options_for_sorting, class: "select_box" %>
+        <% end %>
+        <div class="links">
+          <%= render partial: 'links/links_list', locals: { links: @links }%>
+        </div>
       </div>
       <div class="col-lg-3 col-md-3 col-sm-3 showback tag-cloud-width">
           <% tag_cloud Link.tag_counts, %w{s m l} do |tag, css_class| %>
@@ -12,7 +18,7 @@
           <% end %>
       </div>
       <div class="link_pagination">
-        <%= will_paginate @links || @search_list %>
+        <%= will_paginate @links %>
       </div>
     <% end %>
   </div>

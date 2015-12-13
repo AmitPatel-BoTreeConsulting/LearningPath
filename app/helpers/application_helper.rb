@@ -1,6 +1,6 @@
 module ApplicationHelper
   def links_count
-    current_user.current_user_links.count
+    current_user.links.count
   end
 
   def favourite_links_count

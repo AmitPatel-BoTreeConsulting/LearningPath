@@ -3,8 +3,8 @@ class Link < ActiveRecord::Base
   include PgSearch
   multisearchable against: [:title, :description]
 
-  pg_search_scope :search, against: [:title, :description],
-                  associated_against: { link_type: :name, category: :name },
+  pg_search_scope :search, against: [:title, :description, :created_at, :updated_at],
+                  associated_against: { link_type: :name, category: :name, learn_times: :created_at },
                   using: { tsearch: { prefix: true } }
 
   self.per_page = 20
@@ -13,14 +13,14 @@ class Link < ActiveRecord::Base
   validates :url, format: { with: URI::regexp(%w(http https)) }
   has_many :favourites
   belongs_to :user
-  has_many :learn_time
+  has_many :learn_times
   belongs_to :category
   belongs_to :learning_status
   belongs_to :link_type
 
-  def self.learn_time(user)
-    LearnTime.create!(user_id: user.id, link_id: self.id)
-  end
+  scope :order_by_created_at, -> { order(created_at: :desc) }
+
+  scope :order_by_updated_at, -> { order(updated_at: :desc) }
 
   def create_favourite(user_id, link_id)
     favourites.create!(user_id: user_id, link_id: link_id)
@@ -41,7 +41,7 @@ class Link < ActiveRecord::Base
     if @link.empty?
       without_taglist = hash.except('tag_list')
       @link = self.create! without_taglist
-      current_user.tag(@link, :with => hash['tag_list'], :on => :tags)
+      current_user.tag(@link, with: hash['tag_list'], on: :tags)
     end
   end
 end

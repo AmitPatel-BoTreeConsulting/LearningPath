@@ -1,0 +1,3 @@
+$('.links').append("<%= escape_javascript(render partial: 'links/links_list', locals: { links: @links = @sorted_links })%>");
+$('.pagination').replaceWith('<%= escape_javascript(will_paginate(@sorted_links) )%>');
+$('.flash_msg').remove();

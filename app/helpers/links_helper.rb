@@ -1,6 +1,12 @@
 module LinksHelper
   include ActsAsTaggableOn::TagsHelper
 
+  SORT_OPTIONS = ['Added On', 'Updated On', 'Recently Learned', 'Learn Count']
+
+  def options_for_sorting
+    options_for_select(SORT_OPTIONS)
+  end
+
   def is_favourite_link?(link)
     link.favourite
   end
@@ -46,7 +52,7 @@ module LinksHelper
   end
   
   def learning_count(link)
-    link.learn_time.count
+    link.learn_times.count
   end
 
   def set_tooltip_on_count(number)

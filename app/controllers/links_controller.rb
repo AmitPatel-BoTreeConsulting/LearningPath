@@ -1,3 +1,4 @@
+require 'will_paginate/array'
 class LinksController < ApplicationController
   before_filter :authenticate_user!
   before_filter :assign_link, only: [:update, :destroy, :edit]
@@ -9,9 +10,9 @@ class LinksController < ApplicationController
   def index
     selected_tag = params[:tag]
     if selected_tag
-      @links = current_user_links.tagged_with(selected_tag).order(:created_at => :desc).paginate(page: page)
+      @links = current_user_links.tagged_with(selected_tag).order(created_at: :desc).paginate(page: page)
     else
-      @links = current_user_links.order(:created_at => :desc).paginate(page: page)
+      @links = current_user_links.order(created_at: :desc).paginate(page: page)
     end
     respond_to do |format|
       format.html
@@ -20,13 +21,31 @@ class LinksController < ApplicationController
     end
   end
 
+  def sort
+    case params[:sort_by]
+    when 'Added On'
+      @sorted_links = search_string_is_empty? ? current_user_links.order_by_created_at :
+          search_list.reorder('created_at DESC')
+    when 'Updated On'
+      @sorted_links = search_string_is_empty? ? current_user_links.order_by_updated_at :
+          search_list.reorder('updated_at DESC')
+    when 'Recently Learned'
+      @sorted_links = search_string_is_empty? ? current_user.user_learned_links :
+          search_list.reorder('last_learned_at DESC').reject{|link| link.last_learned_at.nil? }
+    when 'Learn Count'
+      @sorted_links = search_string_is_empty? ? current_user_links.sort_by{ |link| link.learn_times.count }.reverse :
+          search_list.reorder('learn_times_count DESC')
+    end
+    @sorted_links = @sorted_links.paginate(page: page)
+  end
+
   def new
     @link = Link.new
   end
 
   def create
     @link = Link.new(link_params.merge({ user_id: current_user.id }).except!(:tag_list))
-    current_user.tag(@link, :with => link_params[:tag_list], :on => :tags)
+    current_user.tag(@link, with: link_params[:tag_list], on: :tags)
 
     if @link.save
       redirect_to root_path
@@ -43,7 +62,7 @@ class LinksController < ApplicationController
   def update
     if @link.present?
       @link.update(link_params.merge({user_id: current_user.id}).except!(:tag_list))
-      current_user.tag(@link, :with => link_params[:tag_list], :on => :tags)
+      current_user.tag(@link, with: link_params[:tag_list], on: :tags)
       flash[:success] = 'Successfully Updated!!'
       redirect_to root_path
     else
@@ -60,7 +79,7 @@ class LinksController < ApplicationController
   end
 
   def favourites
-    @links = current_user.links.where(favourite: true).order(:created_at => :desc).paginate(page: page)
+    @links = current_user.links.where(favourite: true).order(created_at: :desc).paginate(page: page)
     render 'links/index'
   end
 
@@ -75,12 +94,17 @@ class LinksController < ApplicationController
   end
 
   def search
-    @search_list = params[:search_string].empty? ? current_user_links.order(:created_at => :desc).paginate(page: page) : Link.search(params[:search_string]).paginate(page: page)
+    @search_list = search_string_is_empty? ? current_user_links.order(created_at: :desc) : search_list
+    @search_list = @search_list.paginate(page: page)
+  end
+
+  def search_list
+    Link.search(params[:search_string])
   end
 
   private
     def link_params
-      params.require(:link).permit(:title, :url, :learning_status_id, :description, :category_id, :user_id,  :link_type_id, :tag_list => [])
+      params.require(:link).permit(:title, :url, :learning_status_id, :description, :category_id, :user_id,  :link_type_id, tag_list: [])
     end
 
     def assign_link
@@ -106,6 +130,10 @@ class LinksController < ApplicationController
 
     def current_user_links
       current_user.links
+    end
+
+    def search_string_is_empty?
+      params[:search_string].empty?
     end
 
   def to_csv(user, options= {})
