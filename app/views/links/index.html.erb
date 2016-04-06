@@ -7,7 +7,7 @@
         <%= render partial: 'links/links_list', locals: { links: @links}%>
       </div>
       <div class="col-lg-3 col-md-3 col-sm-3 showback tag-cloud-width">
-          <% tag_cloud Link.tag_counts, %w{s m l} do |tag, css_class| %>
+          <% tag_cloud current_user.owned_tags, %w{s m l} do |tag, css_class| %>
             <%= link_to tag.name, links_path(tag: tag.name), class: css_class %>
           <% end %>
       </div>
